@@ -1,0 +1,30 @@
+#main-title{
+    width: 800px;
+    height: 58px;
+    text-align: center;
+    background-color: rgb(80, 131, 22);
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 60px;
+    border-bottom: solid black 2px;
+}
+#buttons{
+    width: 800px;
+    height: 58px;
+    border-bottom: 2px solid black;
+    float:left;
+    background-color: rgb(110, 112, 20);
+}
+.button{
+    text-align: center;
+    float:right;
+    width: 220px;
+    height: 58px;
+    font-size: 25px;
+    font-weight: 700;
+    border-left: 2px solid black;
+    line-height: 50px;
+}
+.button:hover{
+    background-color: rgb(154, 156, 18);
+}
