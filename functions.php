@@ -1,6 +1,6 @@
 <?php
 
-/* Funkcja podająca nazwe miesiąca wpisująć liczbe w formacie "01" */
+/* Return the name of the month by entering a number in the format "01"/"1" */
 function nameOfMonth($nrMonth)
 {
     $month = "";
@@ -44,7 +44,7 @@ function nameOfMonth($nrMonth)
     return $month;
 }
 
-/* Funkcja dodająca zero na początku stringa jeżeli string ma 1 znak --> do poprawności daty */
+/* Return 0 at the beginning of string if is $number has one character */
 function add_0_onBeginning($number)
 {
     if(strlen($number)==1)
@@ -54,13 +54,13 @@ function add_0_onBeginning($number)
     return $number;
 }
 
-/* Funkcja zwracająca 1 -> wolny lub 0 -> zajęty, zależnie czy pokój jest zajęty */
+/* Return bool whether the room is free | 1 -> free | 0 -> occupied  */
 function checkingIfRoomIsFree($room_id,$res_since,$res_untill)
 {
-    //Połączenie z bazą danych
+    // Initialize database connection
     global $conn;
 
-    //Sprawdzenie czy pokój w danych dniach nie ma żadnej rezerwacji
+    // Checking if the room has no reservation on the given days
     $sqlCheckIfRoomIsFree = 'SELECT * FROM reservations,rooms
     WHERE
     (
@@ -121,7 +121,7 @@ function checkingIfRoomIsFree($room_id,$res_since,$res_untill)
 
 }
 
-/* Funkcja zwracająca 1 -> dla wystarczajaca duzego pokoju 0 -> za malego pokoju */  
+/* Function returning 1 -> for a sufficiently large room 0 -> for a too small room */  
 function checkingPeopleInRoom($room_id,$how_many_people)
 {
     global $conn;
@@ -144,7 +144,7 @@ function checkingPeopleInRoom($room_id,$how_many_people)
     }
 }
 
-/* Funkcja wypisujaca zmienna sesyjną o nazwie podanej w argumencie a nastepne unset */
+/* Function that prints out a session variable with the name specified in the argument and then unset variable */
 function writeSessionValueByNameIfExists($ses_var_name)
 {
     if(isset($_SESSION[$ses_var_name]))
@@ -155,10 +155,10 @@ function writeSessionValueByNameIfExists($ses_var_name)
     }
 }
 
-/* Wyświetla wiersz wraz z odpowiednią zawartością gdy pokój w danym dniu jest wolny lub nie */
+/* Displays a row with the corresponding content when a room is free or not on a given day */
 function dayInCalendar($day,$room_id,$date)
 {
-    //Na początku sprawdza czy podany dzień już się nie wydarzył
+    // Checks if the specified day has not already happened
     $todaysDate = date("Y-m-d");
     if($todaysDate>$date)
     {
@@ -170,7 +170,7 @@ function dayInCalendar($day,$room_id,$date)
     }
     else
     {
-        //Pokój o podanej dacie jest wolny
+        // The room on the given date is free
         if(checkingIfRoomIsFree($room_id,$date,$date)==1)
         {
             echo'
@@ -179,7 +179,7 @@ function dayInCalendar($day,$room_id,$date)
                     </td>
                 ';
         }
-        //Pokój o podanej dacie jest zajęty
+        // The room on the given date is occupied
         if(checkingIfRoomIsFree($room_id,$date,$date)==0)
         {
             echo'
@@ -191,31 +191,29 @@ function dayInCalendar($day,$room_id,$date)
     }
 }
 
-/* Wyświetlanie dat wybranych z kalendarza w formularzu */
+/* Displaying dates selected from the calendar in the form */
 function setDayInFormChoseFromCalendar($when,$year,$month)
 {
-    //Pole w formularzu SINCE - OD
     if($when=="since")
     {
-        //Jeżeli kliknięto w jakąś date w kalendarzu
-        if(isset($_POST['choose-day']))//Zmienna choose-day przechowuje date z kalendarza
+        // Click on a date in the calendar
+        if(isset($_POST['choose-day']))// The choose-day variable stores the date from the calendar
         {
-            //Przepisanie do zmiennej wybranej daty
+            // Set the selected date to a variable
             $choseDate = $year."-".$month."-".$_POST['choose-day'];
 
-            /* Sprawdzenie czy już jakaś została wcześniej wybrana
-               Zmienna sesyjna calendarSince przechowuje date od którego zaczynamy rezerwacje
-               Zmienna sesyjna Calendar Untill przechowuje date kiedy kończymy rezerwacje */
+            /* The session variable calendarSince holds the date from which we start reservations
+               The session variable CalendarUntill stores the date when we end the reservation */
             if(!isset($_SESSION['calendarSince'])&&!isset($_SESSION['calendarUntill']))
             {                  
-                //do zmiennej przechowujacej date since przypisujemy wybrany dzień z kalendarza
+                // Variable stores date since we assign a selected day from the calendar
                 $_SESSION['calendarSince']=$choseDate;
 
-                //wyświetlenie daty w formularzu
+                // Displaying the date in the form 
                 return $_SESSION['calendarSince'];
             }
 
-            //Jeżeli jest ustawione since i wybrana data jest wczesniej niz since
+            // If set since and the selected date is earlier than since
             if(isset($_SESSION['calendarSince'])&& $_SESSION['calendarSince']>$choseDate)
             {
                 $_SESSION['calendarSince']=$choseDate;
@@ -223,7 +221,7 @@ function setDayInFormChoseFromCalendar($when,$year,$month)
             }
 
 
-            //Jeżeli funkcja sprawdzi wszystkie warunki i dalej działa, oraz jak istnieje calendar since to zwraca wartosc
+            // If the function checks all conditions and still works, and if there is a calendar since, it returns the value
             if(isset($_SESSION['calendarSince']))
             {
                 return $_SESSION['calendarSince'];
@@ -232,37 +230,33 @@ function setDayInFormChoseFromCalendar($when,$year,$month)
         }
     }
 
-
-
-    //Pole w formularzu UNTILL - DO
     if($when=="untill")
     {
         if(isset($_POST['choose-day']))
         {
             $choseDate = $year."-".$month."-".$_POST['choose-day'];
-            //Jeżeli ustawiony jest początek, lecz koniec nie oraz wybrana data jest później niz ustawiony poczatek
+            // If the start is set but the end is not and the selected date is later than the set start
             if(isset($_SESSION['calendarSince'])&&$choseDate>$_SESSION['calendarSince']&&!isset($_SESSION['calendarUntill']))
             {
                 $_SESSION['calendarUntill']=$choseDate;
                 return $choseDate;
             }
 
-            //Jeżeli jest ustawione since i wybrana data jest wczesniej niz since TO ZABEZPIECZENIE zeby untill tez sie nie zmienial
+            // If it is set since and the selected date is earlier than since, so that untill does not change too
             if(isset($_SESSION['calendarSince'])&& $_SESSION['calendarSince']>$choseDate && isset($_SESSION['calendarUntill']))
             {
                 return $_SESSION['calendarUntill'];
             }
 
 
-            //Jeżeli ustawiony jest since oraz ustawiony jest untill i wybrana jest data większa od since
+            // If since is set and untill is set and a date greater than since is selected
             if(isset($_SESSION['calendarSince'])&&isset($_SESSION['calendarUntill'])&&$choseDate>$_SESSION['calendarSince'])
             {
                 $_SESSION['calendarUntill']=$choseDate;
                 return $_SESSION['calendarUntill'];
             }
 
-            //Jeżeli ustawiony jest poczatek ale nie koniec oraz podano ta samą date
-            //+ zabezpieczenie zeby od razu nie ustawialo takiej samej daty jak w since
+            // If start is set but not end and same date is given
             if(isset($_SESSION['calendarSince'])&&!isset($_SESSION['calendarUntill'])&&$_SESSION['calendarSince']==$choseDate)
             {
                 if(isset($_SESSION['firstTimeDate'])&&isset($_SESSION['calendarSince'])&&!isset($_SESSION['calendarUntill'])&&$_SESSION['calendarSince']==$choseDate)
@@ -276,7 +270,7 @@ function setDayInFormChoseFromCalendar($when,$year,$month)
                 }
             }
 
-            //Jeżeli funkcja sprawdzi wszystkie warunki i dalej działa, oraz jak istnieje calendar untill to zwraca wartosc
+            // If the function checks all the conditions and still works, and if there is a calendar untill it returns the value
             if(isset($_SESSION['calendarUntill']))
             {
                 return $_SESSION['calendarUntill'];

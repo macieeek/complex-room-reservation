@@ -1,13 +1,13 @@
 <?php
     session_start();
 
-    /* Baza danych */
+    /* Initializing database connection */
     include_once("db-connect.php");
 
-    /* Funkcje */
+    /* Helpers */
     include_once("functions.php");
 
-    /* Czyszczenie formularza rezerwacji po wciśnięciu przycisku wyczyść */
+    /* Clearing the booking form after pressing the clear button */
     if(isset($_POST['clear-form']))
     {
         if(isset($_SESSION['phone-number']))unset($_SESSION['phone-number']);
@@ -18,10 +18,10 @@
         if(isset($_SESSION['calendarUntill']))unset($_SESSION['calendarUntill']);
     }
 
-    /* Obsługa formularza rezerwacji */
+    /* Reservation form handling */
     if(isset($_POST['reserve-room']))
     {
-        //Sprawdzenie czy formularz został wysłany w pełni
+        // Checking if the form has been submitted fully
         if(empty($_POST['room'])||empty($_POST['res-since'])||
            empty($_POST['res-untill'])||empty($_POST['phone-number'])||
            empty($_POST['name'])||empty($_POST['surname'])||
@@ -42,16 +42,15 @@
             exit();
         }
 
-        /* Jeżeli data rozpoczęcia rezerwacji jest później niż końca */
-        /* oraz jeżeli data rozpoczęcia jest dniem, który już przeminął */
+        /* If the start date of the reservation is later than the end */
+        /* and if the start date is a day that has already passed */
         if($_POST['res-since']>$_POST['res-untill'] || date("Y-m-d") > $_POST['res-since'])
         {
             $_SESSION['reservation-error']=true;
         }
-        /* Jeżeli do tej pory wszystko git */
         else
         {
-            //przypisanie postów do zmiennych
+            // assigning posts to variables
             $room =          $_POST['room'];
             $reserveSince =  $_POST['res-since'];
             $reserveUntill = $_POST['res-untill'];
@@ -60,14 +59,14 @@
             $surname =       $_POST['surname'];
             $howManyPeople = $_POST['how-many-people'];
 
-            /* Jeżeli pokój jest pusty oraz jest wystarczająco duży */
+            /* If the room is empty and is large enough */
             if(checkingIfRoomIsFree($room,$reserveSince,$reserveUntill)==1
                && checkingPeopleInRoom($room,$howManyPeople)==1)
             {
-                //Data, w której dokona się rezerwacja
+                // Date on which the reservation will be made
                 $dateReservation = date("Y-m-d");
     
-                //Insert rezerwacji
+                // Insert reservation
                 $sqlInsertReservation = 'INSERT INTO reservations
                 (date_reservation, date_res_since, date_res_untill, room_id,
                 phone_number, name, surname)
@@ -77,14 +76,14 @@
                 
                 if($conn->query($sqlInsertReservation)===TRUE)
                 {
-                    //Utworzenie zmiennych sesyjnych do wyświetlenia komunikatu
+                    // Create session variables to display a message
                     $_SESSION['reservation-completed']=true;
                     $_SESSION['room']=$room;
                     $_SESSION['reserveSince']=$reserveSince;
                     $_SESSION['reserveUntill']=$reserveUntill;
                 }
             }
-            /* Coś poszło nie tak więc daje błąd */
+            /* Something went wrong so an error */
             else
             {
                 $_SESSION['reservation-error']=true;
@@ -92,7 +91,7 @@
         }
     }
 
-    /* Jeżeli wybrano dzień to ustawianie zmiennej sesyjnej z pokojem */
+    /* If day is selected, set the session variable with room */
     if(isset($_POST['choose-room']))
     {
         $_SESSION['choose-room']=$_POST['choose-room'];
@@ -131,12 +130,12 @@
     <div id="content">
 
 
-        <!-- Tytuł w podstronie -->
+        <!-- title -->
         <div id="content-title">
             Wybierz pokój do rezerwacji
         </div>
 
-        <!-- Mapa hotelu - wybieranie pokoju -->
+        <!-- Hotel map - selecting a room -->
         <div id="table-div">
              <table id="rooms-table">
 
@@ -182,35 +181,33 @@
 
 
     <?php
-        /* Jeżeli wybrano pokój */
-        /* Pokazuje się kalendarz oraz formularz rezerwacji */
-        if(isset($_POST['choose-room'])||isset($_SESSION['choose-room']))//Zmienna choose-room przechowuje numer pokoju
+        /* Selected room */
+        /* Shows calendar and reservation form */
+        if(isset($_POST['choose-room'])||isset($_SESSION['choose-room']))// choose-room -> room number 
         {
-            //Jeżeli nie istnieje zmienna sesyjna choose-room -> tworzenie zmiennej sesyjnej choose-room
+            // If session variable choose-room doesnt exist -> creating session variable choose-room
             if(!isset($_SESSION['choose-room'])) $_SESSION['choose-room']=$_POST['choose-room'];
 
-            //Jeżeli istnieje zmienna sesyjna oraz został wybrany inny pokój, to zmieniamy wartość zmiennej na aktualnie wybrany
+            // If a session variable exists and another room is selected, we change the value of the variable to the currently selected one
             if(isset($_SESSION['choose-room'])&&isset($_POST['choose-room']))$_SESSION['choose-room']=$_POST['choose-room'];
-            
 
-
-            /* USTAWIENIE MIESIĄCA JEŻELI WCZEŚNIEJ NIE BYŁ USTAWIANY */
+            /* Setting month if it hasnt been set before */
             if(!isset($_SESSION['month']))
             {
-                //date('m') zwraca wartosc aktualnego miesiaca w formie "03"
+                // date('m') returns the value of the current month in the form "03"
                 $monthString = nameOfMonth(date('m'));
             }
-            /* JEŻELI WYBRANO MIESIĄC JUŻ WCZESNIEJ ORAZ PONOWNIE KLIKNIETO ZMIANE */
+            /* If already selected a month and click on chane again */
             if(isset($_SESSION['month'])&&isset($_POST['changeMonth'])&&isset($_SESSION['changedAtLeastOnce']))
             {
-                //jeżeli wybrano miesiąc wiekszy niz 12 to wtedy +1 year i daje styczen
+                // select a month greater than 12 then +1 year and it gives January
                 if($_SESSION['month']>=12 && (int)$_POST['changeMonth']==1)
                 {
                     if(!isset($_SESSION['year'])) $_SESSION['year']=(int)date('Y');
                     if(isset($_SESSION['year'])) $_SESSION['year'] += 1;
                     $_SESSION['month']=0;
                 }
-                //jeżeli cofnięto miesiąc a wybranym aktualnie miesiącem jest styczeń to cofamy rok o jeden i jest grudzień
+                // Month was moved back and the currently selected month is January, move the year back by one and it is December
                 if($_SESSION['month']==1 && (int)$_POST['changeMonth']==(-1) )
                 {
                     if(!isset($_SESSION['year'])) $_SESSION['year']=(int)date('Y');
@@ -224,34 +221,32 @@
 
                 $monthString = nameOfMonth($_SESSION['month']);
             }
-            /* JEZELI KLIKNIE TO ZMIANE MIESIACA PO RAZ PIERWSZY */
-            /* ZMIENIONA KOLEJNOSC ABY DATA NIE ZMIENIALA SIE ZA PIERWSZYM RAZEM DWA RAZY */
+            /* Changed month for the first time */
             if(!isset($_SESSION['month'])&&isset($_POST['changeMonth']))
             {
                 $nrCurrentMonth = (int)date('m');
                 $valueChangeMonth = (int)$_POST['changeMonth'];
 
-                //wartość zmienionego miesiąca INT
+                // value of changed month INT
                 $_SESSION['month'] = $nrCurrentMonth + $valueChangeMonth;
 
-                //przypisanie do stringa miesiąca
+                // assignment to the month string
                 $monthString = nameOfMonth($_SESSION['month']);
 
-                //ustawienie sesyjnej changedAtLeastOnce aby nie potwarzac ifa po tym ifie
                 $_SESSION['changedAtLeastOnce']=true;
             }
             
             
-            /* USTAWIENIE ROKU */
+            /* Set year */
             if(!isset($_SESSION['year']))$year = date('Y');
             if(isset($_SESSION['year']))$year=$_SESSION['year'];
 
-            /* USTAWIENIE NAZWY MIESIĄCA */
+            /* Set name of the month */
             if(!isset($_SESSION['month']))$monthString = nameOfMonth(date('m'));
             if(isset($_SESSION['month']))$monthString = nameOfMonth($_SESSION['month']);
 
 
-            /* Wyświetlenie diva z dzisiejszą datą oraz komunikatem o kolorach w kalendarzu */
+            /* Display a div with today's date and a message about the colors in the calendar */
             echo'
                 <div id="todays-date">
                 
@@ -276,7 +271,7 @@
                 </div>';
 
 
-            /* KALENDARZ */
+            /* Calendar */
             echo'
                 <div id="calendar-div">
 
@@ -300,13 +295,13 @@
                     <!-- Wyświetlanie dni w kalendarzu -->
                     <form action="#" method="POST">';
 
-                    /* Wyświetlanie dni w kalendarzu dla aktualnego miesiąca, GDY NIE ZOSTAŁA ZMIENIONA JESZCZE DATA */
+                    /* Display the days in the calendar for the current month when the date hasnt changed */
                     if(!isset($_SESSION['month']))
                     {
-                        //zwraca ilosc dni aktualnego miesiaca
+                        // Returns the number of days in the current month
                         $howManyDays = date('t');
 
-                        //Licznik dni z kalendarza
+                        // Calendar day counter
                         $counterDays = 1;
                         $day = &$counterDays;
 
@@ -314,27 +309,27 @@
 
                         $currentMonthYearDate = $year.'-'.$month.'-01';
 
-                        //Utworzenie obiektu o podanej dacie
+                        // Create an object on a given date
                         $date = new DateTime($currentMonthYearDate);
 
-                        //Mechanizm wyświetlania danej ilości dni ile jest w danym miesiącu
+                        // Mechanism of displaying a given number of days how many there are in a given month
                         while($howManyDays>=0)
                         {
                             echo'<tr>';
 
-                            //Co 7 iteracji <tr></tr> aby przejść do kolejnego wiersza w tabeli
+                            // Every 7 iterations <tr></tr> to go to next row in table
                             for($i = 1; $i <= 7; $i++)
                             {
-                                //Jeżeli dzień wykroczył już za ilość dni w miesiącu --> break;
+                                // If the day has already exceeded the number of days in the month --> break;
                                 if($day>date('t'))
                                 {
                                     break;
                                 }
-                                //Konwertowanie z obiektu na string do funkcji wyswietlajacej <td></td>
+                                // Convert from object to string to display function <td></td>
                                 $date_string = $date->format('Y-m-d');
                                 dayInCalendar($day,$_SESSION['choose-room'],$date_string);
 
-                                //Dodanie +1 day do daty znajdujacej się w obiekcie
+                                // Add +1 day to the date in the object
                                 $date->add(new DateInterval('P1D'));
                                 $day++;
                                 $howManyDays--;
@@ -342,14 +337,14 @@
 
                             echo'</tr>';
                             
-                            //Jeżeli dzień wykroczył już za ilość dni w miesiącu --> break;
+                            // If the day has already exceeded the number of days in the month --> break;
                             if($day>date('t'))
                             {
                                 break;
                             }
                         }
                     }
-                    /*  Wyświetlanie dni w kalendarzu dla aktualnego miesiąca, GDY ZOSTAŁA ZMIENIONA DATA */
+                    /*  Display the days in the calendar for the current month when the date changes */
                     if(isset($_SESSION['month']))
                     {
                         $howManyDays = cal_days_in_month(CAL_GREGORIAN,(int)$_SESSION['month'],(int)$year);
@@ -362,7 +357,7 @@
 
                         $month = $_SESSION['month'];
 
-                        //Aby miesiąc był w formacie "0x" 
+                        // To make the month in the format "0x" 
                         $month = add_0_onBeginning($month);
 
                         $date = new DateTime($ChoosenMonthYearDate);
@@ -462,7 +457,7 @@
                         
                         </div>';
 
-                        /* Jeżeli rezerwacja się powiodła wyświetla komunikat: */
+                        /* If the reservation was successful it displays a message: */
                         if(isset($_SESSION['reservation-completed']))
                         {
                             echo'
@@ -478,7 +473,7 @@
                             unset($_SESSION['reserveUntill']);
                         }
 
-                        /* Jeżeli rezerwacja się nie powiodła wyświetla komunikat: */
+                        /* If the reservation is unsuccessful it displays a message: */
                         if(isset($_SESSION['reservation-error']))
                         {
                             echo'
@@ -489,7 +484,7 @@
                             unset($_SESSION['reservation-error']);
                         }
 
-                        /* Zakończenie divu z formularzem, zakończenie formularza, przycisk czyszczenia ustawiony ABSOLUTE */
+                        /* Cleanup button */
                     echo'
                         <form action="#" method="POST">
                             <button id="clear-form-button" type="submit" value="clear" name="clear-form">Wyczyść formularz</button>

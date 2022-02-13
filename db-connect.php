@@ -3,7 +3,7 @@
 $host = "localhost";
 $user = "root";
 $password = "";
-$database = "name_of_database";
+$database = "complex_room_reservation";
 
 $conn = new mysqli($host,$user,$password,$database);
 
