@@ -2,6 +2,7 @@
 
 > ### Project of the web application which provides complex functionalities related to room reservation.
 
+- This is one of my first php projects.
 - The application is made in clear php.
 
 # Installation
@@ -19,3 +20,7 @@ Create database called 'complex_room_reservation'
 Export sql file there which is available in project files and finally open project
 
     localhost/complex-room-reservation/index.php
+	
+# Application appearance
+
+![](https://github.com/maciekiwaniuk/room-reservation-app/raw/main/assets/image.jpg?raw=true)
