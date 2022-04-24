@@ -1,6 +1,6 @@
-# Complex room reservation
+# Room reservation app
 
-> ### Project of the web application which provides complex functionalities related to room reservation.
+> ### Project of the web application which provides functionalities related to room reservation.
 
 - This is one of my first php projects.
 - The application is made in clear php.
@@ -11,15 +11,15 @@ To successfully install you need to have database environment (for example [XAMP
 
 Open xampp\htdocs directory, open console and then clone the repository
 
-    git clone https://github.com/maciekiwaniuk/complex-room-reservation
+    git clone https://github.com/maciekiwaniuk/room-reservation-app
     
-Create database called 'complex_room_reservation'
+Create database called 'room_reservation'
 
-    CREATE DATABASE complex_room_reservation;
+    CREATE DATABASE room_reservation;
     
 Export sql file there which is available in project files and finally open project
 
-    localhost/complex-room-reservation/index.php
+    localhost/room-reservation-app/index.php
 	
 # Application appearance
 
