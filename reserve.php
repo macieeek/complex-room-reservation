@@ -20,7 +20,7 @@
 
     /* Reservation form handling */
     if(isset($_POST['reserve-room']))
-    {
+    {   
         // Checking if the form has been submitted fully
         if(empty($_POST['room'])||empty($_POST['res-since'])||
            empty($_POST['res-untill'])||empty($_POST['phone-number'])||
@@ -37,7 +37,6 @@
 
             $_SESSION['choose-room']=true;
 
-            
             header("Location: reserve.php");
             exit();
         }

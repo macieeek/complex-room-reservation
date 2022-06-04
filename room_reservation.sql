@@ -29,10 +29,12 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `reservations` (
   `id` int(100) NOT NULL,
+  `date_reservation` date NOT NULL,
   `date_res_since` date NOT NULL,
   `date_res_untill` date NOT NULL,
   `room_id` int(100) NOT NULL,
   `name` varchar(100) NOT NULL,
+  `surname` varchar(100) NOT NULL,
   `phone_number` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
