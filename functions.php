@@ -64,47 +64,8 @@ function checkingIfRoomIsFree($room_id,$res_since,$res_untill)
     $sqlCheckIfRoomIsFree = 'SELECT * FROM reservations,rooms
     WHERE
     (
-        (
-            "'.$res_since.'" = date_res_since AND
-            "'.$res_since.'" = date_res_untill AND
-            "'.$res_untill.'" = date_res_since AND
-            "'.$res_untill.'" = date_res_untill
-        )
-        OR
-        (
-            "'.$res_since.'" >= date_res_since AND
-            "'.$res_since.'" <= date_res_untill AND
-            "'.$res_untill.'" >= date_res_since AND
-            "'.$res_untill.'" >= date_res_untill
-        )
-        OR
-        (
-            "'.$res_since.'" <= date_res_since AND
-            "'.$res_since.'" <= date_res_untill AND
-            "'.$res_untill.'" >= date_res_since AND
-            "'.$res_untill.'" <= date_res_untill
-        )
-        OR
-        (
-            "'.$res_since.'" >= date_res_since AND
-            "'.$res_since.'" <= date_res_untill AND
-            "'.$res_untill.'" >= date_res_since AND
-            "'.$res_untill.'" <= date_res_untill
-        )
-        OR
-        (
-            "'.$res_since.'" = date_res_since AND
-            "'.$res_since.'" <= date_res_untill AND
-            "'.$res_untill.'" <= date_res_since AND
-            "'.$res_untill.'" <= date_res_untill
-        )
-        OR
-        (
-            "'.$res_since.'" >= date_res_since AND
-            "'.$res_since.'" <= date_res_untill AND
-            "'.$res_untill.'" >= date_res_since AND
-            "'.$res_untill.'" = date_res_untill
-        )
+        "'.$res_untill.'" >= date_res_since AND
+        "'.$res_since.'" <= date_res_untill
     )
     AND
     room_id = '.$room_id.'
